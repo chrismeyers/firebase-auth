@@ -10,17 +10,16 @@ import { FirebaseProvider } from '../../providers/firebase/firebase';
 })
 export class HomePage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private firebaseProvider: FirebaseProvider) {
+  constructor(public navCtrl: NavController, public navParams: NavParams,
+              private firebaseProvider: FirebaseProvider) {
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad HomePage');
   }
 
-  ionViewCanEnter() {
-    if(!this.firebaseProvider.isLoggedIn()) {
-      this.navCtrl.setRoot('LoginPage');
-    }
+  ionViewCanEnter(): Promise<boolean> {
+    return this.firebaseProvider.isLoggedIn();
   }
 
   logout() {

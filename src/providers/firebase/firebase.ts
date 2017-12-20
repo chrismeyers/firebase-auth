@@ -1,26 +1,17 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from 'angularfire2/auth';
-
-import { User } from "../../models/user";
+import 'rxjs/add/operator/first';
 
 @Injectable()
 export class FirebaseProvider {
 
-  private loggedIn: boolean;
-
   constructor(private afAuth: AngularFireAuth) {
-    this.afAuth.authState.subscribe(user => {
-      this.loggedIn = user ? true : false;
-      console.log(this.loggedIn, user);
-    });
   }
 
-  async login(user: User) {
+  async loginEmailPassword(email: string, password: string) {
     try {
-      // By subscribing to the authState in the constructor, this.loggedIn will
-      // automatically update upon authState changing (think pub/sub).
-      await this.afAuth.auth.signInWithEmailAndPassword(user.email, user.password);
-      return true;
+      const result = await this.afAuth.auth.signInWithEmailAndPassword(email, password);
+      return result && result.email && result.uid;
     }
     catch(e) {
       console.error(e);
@@ -33,9 +24,13 @@ export class FirebaseProvider {
   }
 
   isLoggedIn() {
-    // TODO: There is a timing problem here. The authState subscription is not
-    // returning in time and this.loggedIn is still undefined.
-    return this.loggedIn;
+    // Adding the first() operator completes the promise with the first emitted
+    // value. See: https://stackoverflow.com/a/41885407
+    return this.afAuth.authState.first().toPromise().then((user) => {
+      return user != null;
+    }).catch((err) => {
+      return false;
+    });
   }
 
 }

@@ -13,25 +13,20 @@ export class LoginPage {
 
   user = {} as User;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, private firebaseProvider: FirebaseProvider) {
+  constructor(public navCtrl: NavController, public navParams: NavParams,
+              private firebaseProvider: FirebaseProvider) {
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad LoginPage');
   }
 
-  ionViewCanEnter() {
-    if(this.firebaseProvider.isLoggedIn()) {
-      this.navCtrl.setRoot('HomePage');
-    }
-  }
+  async login(user: User) {
+    const success = await this.firebaseProvider.loginEmailPassword(user.email, user.password);
 
-  login(user: User) {
-    this.firebaseProvider.login(user).then(success => {
-      if(success) {
-        this.navCtrl.setRoot('HomePage');
-      }
-    });
+    if(success) {
+      this.navCtrl.setRoot("HomePage");
+    }
   }
 
 }
